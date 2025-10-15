@@ -1,16 +1,17 @@
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
-        // jcenter() удален, так как он закрыт
-        mavenCentral() 
+        mavenCentral()
     }
     dependencies {
-        // Убедитесь, что эта версия ForgeGradle совместима с вашей версией Gradle
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
+        // Используем стабильную версию ForgeGradle 4.1.+ для 1.16.5
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+'
     }
 }
 
-// Добавляем репозитории для самого проекта (не только для buildscript)
+// *** КРИТИЧЕСКИ ВАЖНО ***
+// Этот блок обеспечивает, что сам проект (зависимости Minecraft/Forge) 
+// находит Forge Maven Repository
 allprojects {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
@@ -25,10 +26,11 @@ version = '2.0'
 group = 'com.lollik.zombieshift'
 archivesBaseName = 'LollikZombieShift'
 
+// Java 8 обязательна для 1.16.5 и ForgeGradle 4
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    // Внимание: channel: 'official' требует Java 8 и корректной настройки GitHub Actions!
+    // Используем официальные маппинги для 1.16.5
     mappings channel: 'official', version: '1.16.5' 
     
     runs {
@@ -45,23 +47,26 @@ minecraft {
 }
 
 dependencies {
-    // Обязательно убедитесь, что версия Forge соответствует вашим требованиям
+    // Используем конкретную версию Forge для 1.16.5
     minecraft 'net.minecraftforge:forge:1.16.5-36.2.39' 
+    // Если у вас есть другие библиотеки, добавляйте их здесь
 }
 
 jar {
+    // Включаем все необходимые классы и зависимости в финальный JAR
+    from sourceSets.main.output
+    
+    // Настройка Manifest
     manifest {
         attributes([
             "Specification-Title": "lollikzombieshift",
             "Specification-Vendor": "lollik",
             "Implementation-Title": project.name,
             "Implementation-Version": project.version,
-            "Implementation-Vendor": "lollik"
+            "Implementation-Vendor": "lollik",
+            // Убедитесь, что ваш главный класс (Main class) указан в mods.toml
+            "FMLModType": "LANGPROVIDER", // Тип мода для Forge (обычно этот или NONE, если в mods.toml)
+            "FMLAT": "lollikzombieshift_at.cfg" // Опционально, если есть AccessTransformer
         ])
-    }
-    // Добавление этого фрагмента помогает включить все необходимые классы в JAR для 1.16.5
-    from(sourceSets.main.output) {
-        // Исключите, если это вызывает проблемы, но обычно нужно для Forge-модов
-        exclude('META-INF/mods.toml') 
     }
 }
