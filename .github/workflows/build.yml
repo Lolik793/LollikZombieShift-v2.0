@@ -13,10 +13,13 @@ jobs:
           java-version: '8'
           distribution: 'temurin'
 
-      - name: Install Gradle
-        uses: gradle/actions/setup-gradle@v3
+      - name: Install old Gradle compatible with Java 8
+        run: |
+          wget https://services.gradle.org/distributions/gradle-6.8.3-bin.zip
+          unzip gradle-6.8.3-bin.zip
+          export PATH=$PWD/gradle-6.8.3/bin:$PATH
 
-      - name: Build with system Gradle
+      - name: Build with old Gradle
         run: gradle build
 
       - name: Upload Artifact
