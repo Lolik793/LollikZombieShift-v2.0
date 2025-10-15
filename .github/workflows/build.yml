@@ -3,24 +3,33 @@ on: [push]
 
 jobs:
   build:
+    # Используем ubuntu-latest для CI
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Set up JDK 8
+      - name: Set up JDK 8 (Mandatory for 1.16.5)
+        # Обязательно устанавливаем Java 8, которая нужна для Minecraft 1.16.5 и ForgeGradle 4
         uses: actions/setup-java@v4
         with:
           java-version: '8'
           distribution: 'temurin'
+          # Добавляем кэширование Gradle, чтобы ускорить повторные сборки
+          cache: 'gradle'
 
-      - name: Install and use Gradle 6.8.3
-        run: |
-          wget https://services.gradle.org/distributions/gradle-6.8.3-bin.zip
-          unzip gradle-6.8.3-bin.zip
-          ./gradle-6.8.3/bin/gradle build
+      - name: Grant execution permission for gradlew
+        # Предоставляем права на выполнение файлу Gradle Wrapper
+        run: chmod +x gradlew
+
+      - name: Build with Gradle Wrapper
+        # Запускаем стандартную команду сборки, используя Gradle Wrapper.
+        # Это устраняет проблему с ручной загрузкой Gradle.
+        run: ./gradlew build
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: LollikZombieShift
+          # Путь к скомпилированному JAR-файлу
           path: build/libs/*.jar
