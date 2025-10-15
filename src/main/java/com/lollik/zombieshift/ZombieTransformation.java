@@ -27,6 +27,7 @@ public class ZombieTransformation {
         UUID playerId = player.getUUID();
         transformedPlayers.put(playerId, true);
 
+        // Создаем зомби-копию для визуального эффекта (по желанию)
         ZombieEntity zombie = new ZombieEntity(player.level);
         zombie.copyPosition(player);
         zombie.setCustomName(player.getDisplayName());
@@ -34,31 +35,57 @@ public class ZombieTransformation {
         zombie.setInvulnerable(true);
         zombie.setSilent(true);
         zombie.setNoAi(true);
+        zombie.setInvisible(true); // Делаем зомби невидимым, если хочешь только способности
 
         player.level.addFreshEntity(zombie);
         zombieCopies.put(playerId, zombie);
 
-        player.setInvisible(true);
-        player.setNoGravity(true);
-        player.noClip = true;
-        player.setInvulnerable(true);
+        // Даем способности, но игрок остается ВИДИМЫМ
+        player.setNoGravity(true);  // Может летать
+        player.noClip = true;       // Может проходить сквозь стены
+        player.setInvulnerable(true); // Неуязвимость
 
-        player.sendMessage(new StringTextComponent("§2Режим зомби активирован!"), playerId);
+        // Добавляем эффекты для красоты
+        player.addEffect(new EffectInstance(Effects.NIGHT_VISION, 1000000, 0, false, false));
+        
+        // Визуальные эффекты вокруг игрока
+        for (int i = 0; i < 10; i++) {
+            player.level.addParticle(ParticleTypes.SOUL, 
+                player.getX() + (Math.random() - 0.5) * 2,
+                player.getY() + Math.random() * 2,
+                player.getZ() + (Math.random() - 0.5) * 2,
+                0, 0.1, 0);
+        }
+
+        player.sendMessage(new StringTextComponent("§2Режим зомби активирован! Лети сквозь стены!"), playerId);
     }
 
     private static void disableZombieForm(PlayerEntity player) {
         UUID playerId = player.getUUID();
         transformedPlayers.put(playerId, false);
 
+        // Удаляем зомби-копию
         ZombieEntity zombie = zombieCopies.remove(playerId);
         if (zombie != null) {
             zombie.remove();
         }
 
-        player.setInvisible(false);
+        // Возвращаем нормальные свойства
         player.setNoGravity(false);
         player.noClip = false;
         player.setInvulnerable(false);
+        
+        // Убираем эффекты
+        player.removeEffect(Effects.NIGHT_VISION);
+
+        // Эффекты при возвращении
+        for (int i = 0; i < 10; i++) {
+            player.level.addParticle(ParticleTypes.SMOKE,
+                player.getX() + (Math.random() - 0.5),
+                player.getY() + Math.random(),
+                player.getZ() + (Math.random() - 0.5),
+                0, 0.1, 0);
+        }
 
         player.sendMessage(new StringTextComponent("§cРежим зомби деактивирован!"), playerId);
     }
