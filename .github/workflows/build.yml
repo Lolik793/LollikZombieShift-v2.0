@@ -1,11 +1,9 @@
 name: Build Mod
-
 on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -15,21 +13,11 @@ jobs:
           java-version: '8'
           distribution: 'temurin'
 
-      - name: Give Gradle permission
-        run: chmod +x gradlew
+      - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v3
 
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Build with Gradle Wrapper
-        run: ./gradlew build --no-daemon
+      - name: Build with system Gradle
+        run: gradle build
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
