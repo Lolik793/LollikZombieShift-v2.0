@@ -24,8 +24,8 @@ jobs:
 
       - name: Build with Gradle Wrapper
         # Запускаем стандартную команду сборки, используя Gradle Wrapper.
-        # Это устраняет проблему с ручной загрузкой Gradle.
-        run: ./gradlew build
+        # Добавляем --no-daemon, чтобы избежать проблем с фоновыми процессами на CI.
+        run: ./gradlew build --no-daemon
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -33,3 +33,4 @@ jobs:
           name: LollikZombieShift
           # Путь к скомпилированному JAR-файлу
           path: build/libs/*.jar
+          
