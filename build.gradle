@@ -1,11 +1,20 @@
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
-        jcenter()
-        mavenCentral()
+        // jcenter() удален, так как он закрыт
+        mavenCentral() 
     }
     dependencies {
+        // Убедитесь, что эта версия ForgeGradle совместима с вашей версией Gradle
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
+    }
+}
+
+// Добавляем репозитории для самого проекта (не только для buildscript)
+allprojects {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        mavenCentral()
     }
 }
 
@@ -19,7 +28,8 @@ archivesBaseName = 'LollikZombieShift'
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    mappings channel: 'official', version: '1.16.5'
+    // Внимание: channel: 'official' требует Java 8 и корректной настройки GitHub Actions!
+    mappings channel: 'official', version: '1.16.5' 
     
     runs {
         client {
@@ -35,7 +45,8 @@ minecraft {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.5-36.2.39'
+    // Обязательно убедитесь, что версия Forge соответствует вашим требованиям
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.39' 
 }
 
 jar {
@@ -47,5 +58,10 @@ jar {
             "Implementation-Version": project.version,
             "Implementation-Vendor": "lollik"
         ])
+    }
+    // Добавление этого фрагмента помогает включить все необходимые классы в JAR для 1.16.5
+    from(sourceSets.main.output) {
+        // Исключите, если это вызывает проблемы, но обычно нужно для Forge-модов
+        exclude('META-INF/mods.toml') 
     }
 }
